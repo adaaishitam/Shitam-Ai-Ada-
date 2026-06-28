@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ada Ai.Shitam</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#0f172a;color:#fff;height:100vh;display:flex;flex-direction:column}
+header{padding:16px;background:#111827;text-align:center;font-size:28px;font-weight:bold}
+#chat{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:80%;padding:12px 16px;border-radius:14px;white-space:pre-wrap}
+.user{align-self:flex-end;background:#7db810}
+.ai{align-self:flex-start;background:#1f2937}
+footer{display:flex;padding:12px;background:#111827;gap:10px}
+input{flex:1;padding:12px;border-radius:10px;border:none;font-size:16px;background:#1f2937;color:#fff}
+input:focus{outline:2px solid #eb2567}
+button{padding:12px 18px;border:none;border-radius:10px;background:#50db83;color:#fff;cursor:pointer;font-weight:bold}
+button:hover{opacity:.9}
+</style>
+</head>
+<body>
+<header>Ada AI</header>
+<div id="chat">
+<div class="msg ai">Hello Duniya 🥰</div>
+</div>
+<footer>
+<input id="question" placeholder="Ask anything...">
+<button onclick="askAI()">Send</button>
+</footer>
+
+<script>
+const chat = document.getElementById("chat");
+
+function add(role, text) {
+ const d = document.createElement("div");
+ d.className = "msg " + role;
+ d.textContent = text;
+ chat.appendChild(d);
+ chat.scrollTop = chat.scrollHeight;
+ return d;
+}
+
+async function askAI() {
+ const inp = document.getElementById("question");
+ const q = inp.value.trim();
+ if (!q) return;
+
+ add("user", q);
+ inp.value = "";
+ const thinking = add("ai", "I am thinking 🧐🧐...");
+
+ try {
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt: q })
+  });
+
+  const data = await res.json();
+  
+  if (res.ok) {
+    thinking.textContent = data.text;
+  } else {
+    thinking.textContent = "Error: " + (data.error ? data.error : "Kuch gadbad hui!");
+  }
+ } catch (e) {
+   thinking.textContent = "Network Error: " + e.message;
+ }
+}
+
+document.getElementById("question").addEventListener("keydown", e => {
+ if (e.key === "Enter") askAI();
+});
+</script>
+</body>
+</html>
